@@ -156,128 +156,128 @@ export default function App() {
 
         const renderListItem: ListRenderItem<Place> = ({ item }) => (
             <TouchableOpacity style={styles.card} onPress={() => openViewModal(item)}>
-            <View style={styles.cardImageContainer}>
-            {item.image ? (
-                <Image source={{ uri: item.image }} style={styles.cardImage} />
-            ) : (
-                <View style={styles.cardPlaceholder}><Ionicons name="image" size={30} color="#ccc" /></View>
-            )}
-            </View>
-            <View style={styles.cardContent}>
-            <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
-            <Text style={styles.cardDesc} numberOfLines={2}>{item.description || 'Нет описания'}</Text>
-            <View style={styles.cardFooter}>
-            <TouchableOpacity onPress={() => goToPlaceOnMap(item)}>
-            <Ionicons name="location" size={20} color={COLORS.blue} />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => deletePlace(item.id)}>
-            <Ionicons name="trash" size={20} color={COLORS.red} />
-            </TouchableOpacity>
-            </View>
-            </View>
+                <View style={styles.cardImageContainer}>
+                    {item.image ? (
+                        <Image source={{ uri: item.image }} style={styles.cardImage} />
+                    ) : (
+                        <View style={styles.cardPlaceholder}><Ionicons name="image" size={30} color="#ccc" /></View>
+                    )}
+                </View>
+                <View style={styles.cardContent}>
+                    <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                    <Text style={styles.cardDesc} numberOfLines={2}>{item.description || 'Нет описания'}</Text>
+                    <View style={styles.cardFooter}>
+                        <TouchableOpacity onPress={() => goToPlaceOnMap(item)}>
+                            <Ionicons name="location" size={20} color={COLORS.blue} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => deletePlace(item.id)}>
+                            <Ionicons name="trash" size={20} color={COLORS.red} />
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </TouchableOpacity>
         );
 
         return (
             <SafeAreaView style={styles.container}>
-            <View style={styles.header}><Text style={styles.headerTitle}>Петрозаводск Гид</Text></View>
+                <View style={styles.header}><Text style={styles.headerTitle}>Петрозаводск Гид</Text></View>
 
-            <View style={{ flex: 1 }}>
-            {currentView === 'map' ? (
                 <View style={{ flex: 1 }}>
-                <MapView
-                key={mapKey}
-                style={styles.map}
-                provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                initialRegion={mapRegion}
-                onLongPress={handleLongPress}
-                >
-                {places.map(p => (
-                    <Marker
-                    key={p.id}
-                    coordinate={p.coordinate}
-                    title={Platform.OS === 'android' ? p.title : undefined}
-                    onCalloutPress={() => openViewModal(p)}
-                    >
-                    {Platform.OS === 'ios' && (
-                        <Callout><View style={styles.iosCallout}><Text style={{fontWeight:'bold'}}>{p.title}</Text></View></Callout>
+                    {currentView === 'map' ? (
+                        <View style={{ flex: 1 }}>
+                            <MapView
+                            key={mapKey}
+                            style={styles.map}
+                            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
+                            initialRegion={mapRegion}
+                            onLongPress={handleLongPress}
+                            >
+                                {places.map(p => (
+                                    <Marker
+                                    key={p.id}
+                                    coordinate={p.coordinate}
+                                    title={Platform.OS === 'android' ? p.title : undefined}
+                                    onCalloutPress={() => openViewModal(p)}
+                                    >
+                                        {Platform.OS === 'ios' && (
+                                            <Callout><View style={styles.iosCallout}><Text style={{fontWeight:'bold'}}>{p.title}</Text></View></Callout>
+                                        )}
+                                    </Marker>
+                                ))}
+                            </MapView>
+                            <View style={styles.hint}><Text style={styles.hintText}>Долгое нажатие — добавить место</Text></View>
+                        </View>
+                    ) : (
+                        <FlatList data={places} renderItem={renderListItem} keyExtractor={p => p.id} numColumns={2} contentContainerStyle={{padding: 10}} />
                     )}
-                    </Marker>
-                ))}
-                </MapView>
-                <View style={styles.hint}><Text style={styles.hintText}>Долгое нажатие — добавить место</Text></View>
                 </View>
-            ) : (
-                <FlatList data={places} renderItem={renderListItem} keyExtractor={p => p.id} numColumns={2} contentContainerStyle={{padding: 10}} />
-            )}
-            </View>
 
-            {/* ТАБ-БАР */}
-            <View style={styles.tabBar}>
-            <TouchableOpacity style={[styles.tab, currentView === 'map' && styles.activeTab]} onPress={() => setCurrentView('map')}>
-            <Ionicons name="map" size={22} color={currentView === 'map' ? 'white' : 'black'} /><Text style={{fontSize:10, color: currentView === 'map' ? 'white' : 'black'}}>Карта</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.tab, currentView === 'list' && styles.activeTab]} onPress={() => setCurrentView('list')}>
-            <Ionicons name="list" size={22} color={currentView === 'list' ? 'white' : 'black'} /><Text style={{fontSize:10, color: currentView === 'list' ? 'white' : 'black'}}>Список</Text>
-            </TouchableOpacity>
-            </View>
+                {/* ТАБ-БАР */}
+                <View style={styles.tabBar}>
+                    <TouchableOpacity style={[styles.tab, currentView === 'map' && styles.activeTab]} onPress={() => setCurrentView('map')}>
+                        <Ionicons name="map" size={22} color={currentView === 'map' ? 'white' : 'black'} /><Text style={{fontSize:10, color: currentView === 'map' ? 'white' : 'black'}}>Карта</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={[styles.tab, currentView === 'list' && styles.activeTab]} onPress={() => setCurrentView('list')}>
+                        <Ionicons name="list" size={22} color={currentView === 'list' ? 'white' : 'black'} /><Text style={{fontSize:10, color: currentView === 'list' ? 'white' : 'black'}}>Список</Text>
+                    </TouchableOpacity>
+                </View>
 
-            {/* МОДАЛКА: ПРОСМОТР ИНФОРМАЦИИ */}
-            <Modal visible={viewModalVisible} animationType="fade" transparent={true}>
-            <View style={styles.viewModalOverlay}>
-            <View style={styles.viewModalContent}>
-            <ScrollView bounces={false}>
-            {selectedPlace?.image ? (
-                <Image source={{ uri: selectedPlace.image }} style={styles.detailImage} />
-            ) : (
-                <View style={[styles.detailImage, styles.cardPlaceholder]}><Ionicons name="image" size={60} color="#ccc" /></View>
-            )}
-            <View style={{ padding: 20 }}>
-            <Text style={styles.detailTitle}>{selectedPlace?.title}</Text>
-            <Text style={styles.detailDesc}>{selectedPlace?.description || 'Описание отсутствует'}</Text>
+                {/* МОДАЛКА: ПРОСМОТР ИНФОРМАЦИИ */}
+                <Modal visible={viewModalVisible} animationType="fade" transparent={true}>
+                    <View style={styles.viewModalOverlay}>
+                        <View style={styles.viewModalContent}>
+                            <ScrollView bounces={false}>
+                                {selectedPlace?.image ? (
+                                    <Image source={{ uri: selectedPlace.image }} style={styles.detailImage} />
+                                ) : (
+                                    <View style={[styles.detailImage, styles.cardPlaceholder]}><Ionicons name="image" size={60} color="#ccc" /></View>
+                                )}
+                                <View style={{ padding: 20 }}>
+                                    <Text style={styles.detailTitle}>{selectedPlace?.title}</Text>
+                                    <Text style={styles.detailDesc}>{selectedPlace?.description || 'Описание отсутствует'}</Text>
 
-            {selectedPlace?.website ? (
-                <TouchableOpacity style={styles.detailLink} onPress={() => Linking.openURL(selectedPlace.website)}>
-                <Ionicons name="globe-outline" size={20} color={COLORS.blue} />
-                <Text style={styles.detailLinkText}>Перейти на сайт</Text>
-                </TouchableOpacity>
-            ) : null}
+                                    {selectedPlace?.website ? (
+                                        <TouchableOpacity style={styles.detailLink} onPress={() => Linking.openURL(selectedPlace.website)}>
+                                            <Ionicons name="globe-outline" size={20} color={COLORS.blue} />
+                                            <Text style={styles.detailLinkText}>Перейти на сайт</Text>
+                                        </TouchableOpacity>
+                                    ) : null}
 
-            <View style={styles.detailActions}>
-            <TouchableOpacity style={[styles.detailBtn, {backgroundColor: COLORS.blue}]} onPress={() => selectedPlace && goToPlaceOnMap(selectedPlace)}>
-            <Text style={styles.btnText}>Показать на карте</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.detailBtn, {backgroundColor: COLORS.red}]} onPress={() => selectedPlace && deletePlace(selectedPlace.id)}>
-            <Text style={styles.btnText}>Удалить</Text>
-            </TouchableOpacity>
-            </View>
-            </View>
-            </ScrollView>
-            <TouchableOpacity style={styles.closeCircle} onPress={() => setViewModalVisible(false)}>
-            <Ionicons name="close" size={28} color="white" />
-            </TouchableOpacity>
-            </View>
-            </View>
-            </Modal>
+                                    <View style={styles.detailActions}>
+                                        <TouchableOpacity style={[styles.detailBtn, {backgroundColor: COLORS.blue}]} onPress={() => selectedPlace && goToPlaceOnMap(selectedPlace)}>
+                                            <Text style={styles.btnText}>Показать на карте</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={[styles.detailBtn, {backgroundColor: COLORS.red}]} onPress={() => selectedPlace && deletePlace(selectedPlace.id)}>
+                                            <Text style={styles.btnText}>Удалить</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </ScrollView>
+                            <TouchableOpacity style={styles.closeCircle} onPress={() => setViewModalVisible(false)}>
+                                <Ionicons name="close" size={28} color="white" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
 
-            {/* МОДАЛКА: ДОБАВЛЕНИЕ (УПРОЩЕНО) */}
-            <Modal visible={addModalVisible} animationType="slide" transparent={true}>
-            <KeyboardAvoidingView behavior="padding" style={styles.viewModalOverlay}>
-            <View style={[styles.viewModalContent, {padding: 20, maxHeight: '80%'}]}>
-            <Text style={styles.modalTitle}>Новое место</Text>
-            <TextInput style={styles.input} placeholder="Название" onChangeText={setNewPlaceTitle} />
-            <TextInput style={[styles.input, {height: 80}]} placeholder="Описание" multiline onChangeText={setNewPlaceDesc} />
-            <TextInput style={styles.input} placeholder="Ссылка (http://...)" onChangeText={setNewPlaceWeb} />
-            <TouchableOpacity style={styles.photoBtn} onPress={pickImage}>
-            <Text style={{color: 'white'}}>{newPlaceImage ? 'Фото выбрано' : 'Выбрать фото'}</Text>
-            </TouchableOpacity>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <TouchableOpacity style={[styles.detailBtn, {width: '48%', backgroundColor: '#999'}]} onPress={() => setAddModalVisible(false)}><Text style={styles.btnText}>Отмена</Text></TouchableOpacity>
-            <TouchableOpacity style={[styles.detailBtn, {width: '48%', backgroundColor: COLORS.green}]} onPress={saveNewPlace}><Text style={styles.btnText}>ОК</Text></TouchableOpacity>
-            </View>
-            </View>
-            </KeyboardAvoidingView>
-            </Modal>
+                {/* МОДАЛКА: ДОБАВЛЕНИЕ (УПРОЩЕНО) */}
+                <Modal visible={addModalVisible} animationType="slide" transparent={true}>
+                    <KeyboardAvoidingView behavior="padding" style={styles.viewModalOverlay}>
+                        <View style={[styles.viewModalContent, {padding: 20, maxHeight: '80%'}]}>
+                            <Text style={styles.modalTitle}>Новое место</Text>
+                            <TextInput style={styles.input} placeholder="Название" onChangeText={setNewPlaceTitle} />
+                            <TextInput style={[styles.input, {height: 80}]} placeholder="Описание" multiline onChangeText={setNewPlaceDesc} />
+                            <TextInput style={styles.input} placeholder="Ссылка (http://...)" onChangeText={setNewPlaceWeb} />
+                            <TouchableOpacity style={styles.photoBtn} onPress={pickImage}>
+                                <Text style={{color: 'white'}}>{newPlaceImage ? 'Фото выбрано' : 'Выбрать фото'}</Text>
+                            </TouchableOpacity>
+                            <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                <TouchableOpacity style={[styles.detailBtn, {width: '48%', backgroundColor: '#999'}]} onPress={() => setAddModalVisible(false)}><Text style={styles.btnText}>Отмена</Text></TouchableOpacity>
+                                <TouchableOpacity style={[styles.detailBtn, {width: '48%', backgroundColor: COLORS.green}]} onPress={saveNewPlace}><Text style={styles.btnText}>ОК</Text></TouchableOpacity>
+                            </View>
+                        </View>
+                    </KeyboardAvoidingView>
+                </Modal>
             </SafeAreaView>
         );
 }
