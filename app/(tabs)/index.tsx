@@ -216,7 +216,7 @@ export default function App() {
                         />
                         <View style={styles.immersiveContentOverlay}>
                             {/* Декоративная цветная полоса слева */}
-                            <View style={[styles.accentStrip, { backgroundColor: index % 2 === 0 ? COLORS.karelianRed : COLORS.karelianBlue }]} />
+                            <View style={[styles.accentStrip, { backgroundColor: index % 3 === 0 ? COLORS.karelianRed : (index % 3 === 1 ? COLORS.karelianBlue : COLORS.karelianGreen) }]} />
                             <View style={{flex: 1}}>
                                 <Text style={styles.immersiveTitle} numberOfLines={2}>{item.title.toUpperCase()}</Text>
                                 <Text style={styles.immersiveDesc} numberOfLines={2}>{item.description || 'Описание отсутствует...'}</Text>
