@@ -23,9 +23,10 @@ interface Place {
     website: string;
     image: string | null;
     coordinate: Coordinate;
+    isRecommended?: boolean; // Новое поле: является ли место рекомендуемым (изначальным)
 }
 
-const STORAGE_KEY = '@user_places_v3_dark'; // Новый ключ для новой версии
+const STORAGE_KEY = '@user_places_v14_dark'; // Обновленный ключ для новой версии
 
 // --- НОВАЯ ПАЛИТРА (ТЕМНАЯ ТЕМА + ЯРКИЙ ФЛАГ) ---
 const COLORS = {
@@ -56,16 +57,63 @@ const INITIAL_PLACES: Place[] = [
         title: 'Онежская набережная',
         description: 'Эпицентр городской жизни. Музей современного искусства под открытым небом на берегу великого Онега. Место силы и долгих прогулок.',
         website: 'https://wiki-karelia.ru',
-        image: null,
-        coordinate: { latitude: 61.7905, longitude: 34.3900 }
+        image: 'https://inkarelia.ru/wp-content/uploads/2023/10/Onega_embankment_24.jpg',
+        coordinate: { latitude: 61.793828, longitude: 34.380368 },
+        isRecommended: true
     },
     {
         id: '2',
         title: 'Национальный музей Карелии',
         description: 'Погружение в историю Севера. От древних петроглифов до тайн карельских шаманов и быта губернского города.',
         website: 'http://nmrk.karelia.ru/',
-        image: null,
-        coordinate: { latitude: 61.7850, longitude: 34.3600 }
+        image: 'https://kareliamuseum.ru/upload/medialibrary/5d1/t8mx49xwqg7zd5dlkfrczolkqn1t4whr.jpg',
+        coordinate: { latitude: 61.787008, longitude: 34.363856 },
+        isRecommended: true
+    },
+    {
+        id: '3',
+        title: 'Музей изобразительных искусств',
+        description: 'Коллекция русского и европейского искусства, иконописи и карельского народного творчества в здании бывшей гимназии XVIII века.',
+        website: 'https://artmuseum.karelia.ru/',
+        image: 'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/05/00/f8/67/caption.jpg',
+        coordinate: { latitude: 61.788020, longitude: 34.382012 },
+        isRecommended: true
+    },
+    {
+        id: '4',
+        title: 'Морской музей «Полярный Одиссей»',
+        description: 'Интерактивный музей под открытым небом с копиями исторических парусных судов, которые можно трогать и на которые иногда разрешают забираться.',
+        website: '',
+        image: 'https://tvoyakarelia.com/gallery/20140923162603_70ee8.webp',
+        coordinate: { latitude: 61.779555, longitude: 34.415193 },
+        isRecommended: true
+    },
+    {
+        id: '5',
+        title: 'Собор Александра Невского',
+        description: 'Главный кафедральный собор Карелии в стиле неоклассицизма, памятник архитектуры и важный духовный центр.',
+        website: '',
+        image: 'https://www.advantour.com/russia/images/petrozavodsk/petrozavodsk-alexander-nevsky-cathedral.jpg',
+        coordinate: { latitude: 61.781239, longitude: 34.379974 },
+        isRecommended: true
+    },
+    {
+        id: '6',
+        title: 'Губернаторский парк',
+        description: 'Исторический тенистый парк в самом центре города с многовековыми лиственницами и атмосферой старины.',
+        website: '',
+        image: 'https://www.advantour.com/russia/images/petrozavodsk/petrozavodsk-governors-park.jpg',
+        coordinate: { latitude: 61.785837, longitude: 34.364089 },
+        isRecommended: true
+    },
+    {
+        id: '7',
+        title: 'Петрозаводский государственный университет',
+        description: 'Главный вуз Карелии, основанный в 1940 году. Научный и образовательный центр Северо-Запада России с уникальным архитектурным ансамблем. Здесь учатся студенты со всей России и из-за рубежа.',
+        website: 'https://petrsu.ru/',
+        image: 'https://stolicaonego.ru/images/news/547/547750/main.jpg',
+        coordinate: { latitude: 61.786157, longitude: 34.352520 },
+        isRecommended: true
     }
 ];
 
@@ -94,16 +142,19 @@ const AboutCity = () => (
         <FlagHeader />
         <ScrollView contentContainerStyle={styles.aboutContainer}>
             <View style={styles.aboutHeaderImageContainer}>
-                {/* Плейсхолдер для фото города (можно заменить на реальное изображение) */}
-                <View style={styles.aboutHeaderImage}>
-                    <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.1)', 'rgba(0,0,0,0.9)']}
-                        style={styles.immersiveGradient}
-                    />
-                    <View style={styles.aboutTitleOverlay}>
-                        <Text style={styles.aboutTitle}>ПЕТРОЗАВОДСК</Text>
-                        <Text style={styles.aboutSubtitle}>Столица Республики Карелия</Text>
-                    </View>
+                {/* ЗАМЕНА: Используем Image с сетевым источником */}
+                <Image
+                    source={{ uri: 'https://www.advantour.com/img/russia/images/petrozavodsk.jpg' }}
+                    style={styles.aboutHeaderImage}
+                    resizeMode="cover" // Это важно для правильного заполнения области
+                />
+                <LinearGradient
+                    colors={['transparent', 'rgba(0,0,0,0.1)', 'rgba(0,0,0,0.9)']}
+                    style={styles.immersiveGradient}
+                />
+                <View style={styles.aboutTitleOverlay}>
+                    <Text style={styles.aboutTitle}>ПЕТРОЗАВОДСК</Text>
+                    <Text style={styles.aboutSubtitle}>Столица Республики Карелия</Text>
                 </View>
             </View>
 
@@ -157,12 +208,44 @@ const AboutCity = () => (
     </View>
 );
 
+// --- КОМПОНЕНТ: ПОИСКОВАЯ ПАНЕЛЬ ---
+const SearchBar = ({ searchQuery, setSearchQuery }: { searchQuery: string; setSearchQuery: (query: string) => void }) => (
+    <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color={COLORS.textGrey} style={styles.searchIcon} />
+        <TextInput
+            style={styles.searchInput}
+            placeholder="Поиск по названию или описанию..."
+            placeholderTextColor={COLORS.textGrey}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            clearButtonMode="while-editing"
+        />
+        {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                <Ionicons name="close-circle" size={20} color={COLORS.textGrey} />
+            </TouchableOpacity>
+        )}
+    </View>
+);
+
+// --- КОМПОНЕНТ: ЗАГОЛОВОК СЕКЦИИ ---
+const SectionHeader = ({ title, color }: { title: string; color: string }) => (
+    <View style={styles.sectionHeader}>
+        <View style={[styles.sectionHeaderLine, { backgroundColor: color }]} />
+        <Text style={styles.sectionHeaderText}>{title}</Text>
+        <View style={[styles.sectionHeaderLine, { backgroundColor: color }]} />
+    </View>
+);
+
 export default function App() {
     const [currentView, setCurrentView] = useState<'map' | 'list' | 'about'>('map');
     const [places, setPlaces] = useState<Place[]>([]);
     const [mapRegion, setMapRegion] = useState<Region>(DEFAULT_REGION);
-    const [mapKey, setMapKey] = useState(0);
     const scrollY = useRef(new Animated.Value(0)).current;
+    const [searchQuery, setSearchQuery] = useState('');
+    
+    // Ref для доступа к MapView
+    const mapRef = useRef<MapView>(null);
 
     // Состояния для модалок
     const [addModalVisible, setAddModalVisible] = useState(false);
@@ -181,8 +264,18 @@ export default function App() {
     const loadPlaces = async () => {
         try {
             const stored = await AsyncStorage.getItem(STORAGE_KEY);
-            if (stored) setPlaces(JSON.parse(stored));
-            else { setPlaces(INITIAL_PLACES); savePlaces(INITIAL_PLACES); }
+            if (stored) {
+                const parsedPlaces = JSON.parse(stored) as Place[];
+                // Добавляем флаг isRecommended к старым данным, если его нет
+                const updatedPlaces = parsedPlaces.map(place => ({
+                    ...place,
+                    isRecommended: place.isRecommended || place.id === '1' || place.id === '2'
+                }));
+                setPlaces(updatedPlaces);
+            } else { 
+                setPlaces(INITIAL_PLACES); 
+                savePlaces(INITIAL_PLACES); 
+            }
         } catch (e) { console.error(e); }
     };
 
@@ -190,6 +283,20 @@ export default function App() {
         try { await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
         catch (e) { console.error(e); }
     };
+
+    // Фильтрация мест по поисковому запросу
+    const filteredPlaces = places.filter(place => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            place.title.toLowerCase().includes(query) ||
+            (place.description && place.description.toLowerCase().includes(query))
+        );
+    });
+
+    // Разделение мест на рекомендуемые и пользовательские
+    const recommendedPlaces = filteredPlaces.filter(place => place.isRecommended);
+    const userPlaces = filteredPlaces.filter(place => !place.isRecommended);
 
     const handleLongPress = (e: LongPressEvent) => {
         setTempCoord(e.nativeEvent.coordinate);
@@ -204,7 +311,8 @@ export default function App() {
             description: newPlaceDesc,
             website: newPlaceWeb,
             image: newPlaceImage,
-            coordinate: tempCoord
+            coordinate: tempCoord,
+            isRecommended: false // Все новые места - пользовательские
         };
         const updated = [...places, place];
         setPlaces(updated);
@@ -219,6 +327,12 @@ export default function App() {
     };
 
     const deletePlace = (id: string) => {
+        const placeToDelete = places.find(p => p.id === id);
+        if (placeToDelete?.isRecommended) {
+            Alert.alert("Нельзя удалить", "Это рекомендуемое место нельзя удалить");
+            return;
+        }
+
         Alert.alert("Удаление", "Стереть это место с карты?", [
             { text: "Отмена", style: "cancel" },
             { text: "Удалить", style: "destructive", onPress: () => {
@@ -231,14 +345,28 @@ export default function App() {
     };
 
     const goToPlaceOnMap = (place: Place) => {
-        setMapRegion({
+        const newRegion = {
             latitude: place.coordinate.latitude,
             longitude: place.coordinate.longitude,
-            latitudeDelta: 0.01, longitudeDelta: 0.01,
-        });
-        setMapKey(v => v + 1);
+            latitudeDelta: 0.002,
+            longitudeDelta: 0.002,
+        };
+        
+        // Обновляем состояние региона
+        setMapRegion(newRegion);
+        
+        // Переключаемся на карту
         setCurrentView('map');
         setViewModalVisible(false);
+        
+        // Используем setTimeout для гарантии, что карта успеет перерендериться
+        setTimeout(() => {
+            // Пытаемся использовать animateToRegion, если mapRef доступен
+            if (mapRef.current) {
+                mapRef.current.animateToRegion(newRegion, 1000);
+            }
+            // Если mapRef не доступен, полагаемся на setMapRegion
+        }, 100);
     };
 
     const openViewModal = (place: Place) => {
@@ -266,6 +394,9 @@ export default function App() {
              outputRange: [1, 1, 1, 0.95]
         });
 
+        // Определяем цвет в зависимости от типа места
+        const accentColor = item.isRecommended ? COLORS.karelianBlue : COLORS.karelianGreen;
+
         return (
             <Animated.View style={[styles.immersiveCardContainer, { opacity, transform: [{scale}] }]}>
                 <TouchableOpacity style={styles.immersiveCard} onPress={() => openViewModal(item)} activeOpacity={0.95}>
@@ -285,9 +416,14 @@ export default function App() {
                         />
                         <View style={styles.immersiveContentOverlay}>
                             {/* Декоративная цветная полоса слева */}
-                            <View style={[styles.accentStrip, { backgroundColor: index % 3 === 0 ? COLORS.karelianRed : (index % 3 === 1 ? COLORS.karelianBlue : COLORS.karelianGreen) }]} />
+                            <View style={[styles.accentStrip, { backgroundColor: accentColor }]} />
                             <View style={{flex: 1}}>
-                                <Text style={styles.immersiveTitle} numberOfLines={2}>{item.title.toUpperCase()}</Text>
+                                <Text style={styles.immersiveTitle} numberOfLines={2}>
+                                    {item.title.toUpperCase()}
+                                    {item.isRecommended && (
+                                        <Text style={{color: COLORS.karelianBlue, fontSize: 12}}> ★</Text>
+                                    )}
+                                </Text>
                                 <Text style={styles.immersiveDesc} numberOfLines={2}>{item.description || 'Описание отсутствует...'}</Text>
                             </View>
                         </View>
@@ -297,14 +433,81 @@ export default function App() {
                          <TouchableOpacity style={styles.actionBtnText} onPress={() => goToPlaceOnMap(item)}>
                             <Text style={{color: COLORS.karelianBlue, fontWeight: 'bold'}}>НА КАРТУ</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.iconBtnDark} onPress={() => deletePlace(item.id)}>
-                            <Ionicons name="trash-outline" size={20} color={COLORS.karelianRed} />
-                        </TouchableOpacity>
+                        {!item.isRecommended && (
+                            <TouchableOpacity style={styles.iconBtnDark} onPress={() => deletePlace(item.id)}>
+                                <Ionicons name="trash-outline" size={20} color={COLORS.karelianRed} />
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </TouchableOpacity>
             </Animated.View>
         );
     };
+
+    // Рендер всего списка с секциями
+    const renderListWithSections = () => (
+        <View style={{flex: 1, backgroundColor: COLORS.bgMain}}>
+            <FlagHeader />
+            <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+            
+            <Animated.FlatList 
+                data={[]} // Используем renderItem только для отдельных элементов
+                renderItem={null}
+                keyExtractor={() => 'sections'}
+                contentContainerStyle={styles.listContainer}
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: true }
+                )}
+                showsVerticalScrollIndicator={false}
+                ListHeaderComponent={
+                    <>
+                        {recommendedPlaces.length > 0 && (
+                            <>
+                                <SectionHeader 
+                                    title="РЕКОМЕНДУЕМЫЕ МЕСТА" 
+                                    color={COLORS.karelianBlue} 
+                                />
+                                {recommendedPlaces.map((item, index) => (
+                                    <View key={`rec_${item.id}`}>
+                                        {renderListItem({item, index})}
+                                    </View>
+                                ))}
+                            </>
+                        )}
+                        
+                        {userPlaces.length > 0 && (
+                            <>
+                                <SectionHeader 
+                                    title="ВАШИ МЕСТА" 
+                                    color={COLORS.karelianGreen} 
+                                />
+                                {userPlaces.map((item, index) => (
+                                    <View key={`user_${item.id}`}>
+                                        {renderListItem({item, index: recommendedPlaces.length + index})}
+                                    </View>
+                                ))}
+                            </>
+                        )}
+                        
+                        {filteredPlaces.length === 0 && (
+                            <View style={styles.emptyState}>
+                                <Ionicons name="search-outline" size={60} color={COLORS.textGrey} style={{opacity: 0.5}} />
+                                <Text style={styles.emptyStateText}>
+                                    {searchQuery ? 'Ничего не найдено' : 'Добавьте свои места на карте'}
+                                </Text>
+                                {searchQuery && (
+                                    <Text style={styles.emptyStateSubtext}>
+                                        Попробуйте изменить запрос поиска
+                                    </Text>
+                                )}
+                            </View>
+                        )}
+                    </>
+                }
+            />
+        </View>
+    );
 
     return (
         <SafeAreaView style={styles.container}>
@@ -315,10 +518,11 @@ export default function App() {
                     <View style={{ flex: 1 }}>
                          <FlagHeader />
                         <MapView
-                            key={mapKey}
+                            ref={mapRef} // Добавляем ref для доступа к карте
                             style={styles.map}
                             provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT}
-                            initialRegion={mapRegion}
+                            initialRegion={DEFAULT_REGION}
+                            region={mapRegion} // Используем region вместо initialRegion для контроля региона
                             onLongPress={handleLongPress}
                             // Попытка симулировать темную карту (не идеально без Google Cloud Styling)
                             customMapStyle={[
@@ -338,13 +542,16 @@ export default function App() {
                                 <Marker
                                     key={p.id}
                                     coordinate={p.coordinate}
-                                    // Чередуем цвета маркеров
-                                    pinColor={index % 3 === 0 ? COLORS.karelianRed : (index % 3 === 1 ? COLORS.karelianBlue : COLORS.karelianGreen)}
+                                    // Чередуем цвета маркеров, рекомендуемые - синие, пользовательские - зеленые
+                                    pinColor={p.isRecommended ? COLORS.karelianBlue : COLORS.karelianGreen}
                                     onCalloutPress={() => openViewModal(p)}
                                 >
                                     <Callout tooltip>
                                         <View style={styles.darkCallout}>
                                             <Text style={styles.calloutText}>{p.title}</Text>
+                                            {p.isRecommended && (
+                                                <Text style={{color: COLORS.karelianBlue, fontSize: 10}}>★ рекомендуемое</Text>
+                                            )}
                                         </View>
                                     </Callout>
                                 </Marker>
@@ -360,20 +567,7 @@ export default function App() {
                         </View>
                     </View>
                 ) : currentView === 'list' ? (
-                    <View style={{flex: 1, backgroundColor: COLORS.bgMain}}>
-                        <FlagHeader />
-                        <Animated.FlatList 
-                            data={places} 
-                            renderItem={renderListItem} 
-                            keyExtractor={p => p.id} 
-                            contentContainerStyle={styles.listContainer}
-                            onScroll={Animated.event(
-                                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                                { useNativeDriver: true }
-                            )}
-                            showsVerticalScrollIndicator={false}
-                        />
-                    </View>
+                    renderListWithSections()
                 ) : (
                     <AboutCity />
                 )}
@@ -429,7 +623,12 @@ export default function App() {
                             {/* Градиент снизу для заголовка */}
                             <LinearGradient colors={['transparent', COLORS.bgMain]} style={styles.bottomGradient} />
                             
-                            <Text style={styles.fsTitle}>{selectedPlace?.title.toUpperCase()}</Text>
+                            <Text style={styles.fsTitle}>
+                                {selectedPlace?.title.toUpperCase()}
+                                {selectedPlace?.isRecommended && (
+                                    <Text style={{color: COLORS.karelianBlue, fontSize: 14}}> ★ рекомендуемое</Text>
+                                )}
+                            </Text>
                         </View>
 
                         <View style={styles.fsBody}>
@@ -458,9 +657,11 @@ export default function App() {
                                     </LinearGradient>
                                 </TouchableOpacity>
 
-                                <TouchableOpacity style={styles.outlineBtnDanger} onPress={() => selectedPlace && deletePlace(selectedPlace.id)}>
-                                    <Text style={styles.outlineBtnText}>УДАЛИТЬ МЕСТО</Text>
-                                </TouchableOpacity>
+                                {!selectedPlace?.isRecommended && (
+                                    <TouchableOpacity style={styles.outlineBtnDanger} onPress={() => selectedPlace && deletePlace(selectedPlace.id)}>
+                                        <Text style={styles.outlineBtnText}>УДАЛИТЬ МЕСТО</Text>
+                                    </TouchableOpacity>
+                                )}
                             </View>
                         </View>
                     </ScrollView>
@@ -550,6 +751,71 @@ const styles = StyleSheet.create({
         zIndex: 1,
     },
 
+    // --- ПОИСКОВАЯ ПАНЕЛЬ ---
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: COLORS.bgInput,
+        marginHorizontal: 20,
+        marginVertical: 15,
+        paddingHorizontal: 15,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    searchIcon: {
+        marginRight: 10,
+    },
+    searchInput: {
+        flex: 1,
+        color: COLORS.textWhite,
+        fontSize: 16,
+        paddingVertical: 14,
+    },
+    clearButton: {
+        padding: 5,
+    },
+
+    // --- ЗАГОЛОВКИ СЕКЦИЙ ---
+    sectionHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginVertical: 20,
+        marginHorizontal: 5,
+    },
+    sectionHeaderLine: {
+        flex: 1,
+        height: 2,
+        borderRadius: 1,
+    },
+    sectionHeaderText: {
+        fontSize: 12,
+        fontWeight: '700',
+        color: COLORS.textGrey,
+        marginHorizontal: 12,
+        letterSpacing: 1.5,
+    },
+
+    // --- ПУСТОЙ ЭКРАН ---
+    emptyState: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+    },
+    emptyStateText: {
+        fontSize: 18,
+        color: COLORS.textGrey,
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    emptyStateSubtext: {
+        fontSize: 14,
+        color: COLORS.textGrey,
+        marginTop: 10,
+        opacity: 0.7,
+        textAlign: 'center',
+    },
+
     // --- MAP & HINTS ---
     map: { flex: 1 },
     topMapGradient: { position: 'absolute', top: 0, width: '100%', height: 120, zIndex: 5, pointerEvents: 'none' },
@@ -566,7 +832,7 @@ const styles = StyleSheet.create({
     calloutText: { color: COLORS.textWhite, fontWeight: 'bold', textAlign: 'center' },
 
     // --- НОВЫЙ СПИСОК (ИММЕРСИВНЫЕ КАРТОЧКИ) ---
-    listContainer: { padding: 20, paddingBottom: 100, paddingTop: 10 },
+    listContainer: { paddingHorizontal: 20, paddingBottom: 100, paddingTop: 10 },
     immersiveCardContainer: { marginBottom: 25 },
     immersiveCard: { 
         backgroundColor: COLORS.bgCard, 
