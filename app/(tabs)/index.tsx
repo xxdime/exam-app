@@ -88,8 +88,77 @@ const FlagHeader = () => (
     </View>
 );
 
+// --- НОВЫЙ КОМПОНЕНТ: "О ГОРОДЕ" (В СТИЛЕ ВИКИПЕДИИ, НО ИММЕРСИВНО) ---
+const AboutCity = () => (
+    <View style={{ flex: 1, backgroundColor: COLORS.bgMain }}>
+        <FlagHeader />
+        <ScrollView contentContainerStyle={styles.aboutContainer}>
+            <View style={styles.aboutHeaderImageContainer}>
+                {/* Плейсхолдер для фото города (можно заменить на реальное изображение) */}
+                <View style={styles.aboutHeaderImage}>
+                    <LinearGradient
+                        colors={['transparent', 'rgba(0,0,0,0.1)', 'rgba(0,0,0,0.9)']}
+                        style={styles.immersiveGradient}
+                    />
+                    <View style={styles.aboutTitleOverlay}>
+                        <Text style={styles.aboutTitle}>ПЕТРОЗАВОДСК</Text>
+                        <Text style={styles.aboutSubtitle}>Столица Республики Карелия</Text>
+                    </View>
+                </View>
+            </View>
+
+            {/* Декоративная линия флага */}
+            <View style={styles.flagLine}>
+                <View style={{ flex: 1, backgroundColor: COLORS.karelianRed }} />
+                <View style={{ flex: 1, backgroundColor: COLORS.karelianBlue }} />
+                <View style={{ flex: 1, backgroundColor: COLORS.karelianGreen }} />
+            </View>
+
+            <Text style={styles.aboutSectionTitle}>Общая информация</Text>
+            <Text style={styles.aboutText}>
+                Петрозаводск — город на северо-западе России, административный центр Республики Карелия. Расположен на берегу Онежского озера, второго по величине пресноводного озера в Европе. Население составляет около 280 тысяч человек (по данным на 2023 год). Город является важным транспортным узлом, промышленным и культурным центром региона.
+            </Text>
+
+            <Text style={styles.aboutSectionTitle}>История</Text>
+            <Text style={styles.aboutText}>
+                Основан в 1703 году по указу Петра I как Петровский завод для производства пушек и якорей для Балтийского флота. В 1777 году получил статус города и название Петрозаводск. В XIX веке стал губернским центром Олонецкой губернии. В советское время развивался как промышленный центр, а после 1991 года — как столица Республики Карелия. Город богат историческими памятниками, включая архитектуру XVIII–XIX веков.
+            </Text>
+
+            <Text style={styles.aboutSectionTitle}>География и климат</Text>
+            <Text style={styles.aboutText}>
+                Петрозаводск расположен в зоне тайги, на берегу Онежского озера. Климат умеренно континентальный с влиянием Балтийского моря: прохладное лето (средняя температура июля +17°C) и умеренно холодная зима (января −9°C). Город окружен лесами и озерами, что делает его привлекательным для экотуризма. Площадь города — около 135 км².
+            </Text>
+
+            <Text style={styles.aboutSectionTitle}>Экономика и транспорт</Text>
+            <Text style={styles.aboutText}>
+                Основные отрасли: машиностроение, лесная промышленность, туризм. Город имеет международный аэропорт "Петрозаводск", железнодорожный вокзал (линия Санкт-Петербург — Мурманск) и порт на Онежском озере. Автомобильные трассы связывают с Москвой, Санкт-Петербургом и Финляндией.
+            </Text>
+
+            <Text style={styles.aboutSectionTitle}>Культура и достопримечательности</Text>
+            <Text style={styles.aboutText}>
+                Петрозаводск известен Онежской набережной с скульптурами, Национальным музеем Республики Карелия, театрами и фестивалями. В окрестностях — острова Кижи (ЮНЕСКО) с деревянной архитектурой. Город — центр карельской и вепсской культуры, с традициями фольклора и ремесел.
+            </Text>
+
+            <Text style={styles.aboutSectionTitle}>Население и общество</Text>
+            <Text style={styles.aboutText}>
+                Этнический состав: русские (около 80%), карелы, финны, вепсы. Город имеет развитую систему образования (Петрозаводский государственный университет) и здравоохранения. Петрозаводск — экологически чистый город с высоким качеством жизни.
+            </Text>
+
+            {/* Декоративный градиентный блок в конце */}
+            <LinearGradient
+                colors={[COLORS.accentGradientStart, COLORS.accentGradientEnd]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.aboutFooter}
+            >
+                <Text style={styles.aboutFooterText}>Откройте Петрозаводск с PTZ GUIDE</Text>
+            </LinearGradient>
+        </ScrollView>
+    </View>
+);
+
 export default function App() {
-    const [currentView, setCurrentView] = useState<'map' | 'list'>('map');
+    const [currentView, setCurrentView] = useState<'map' | 'list' | 'about'>('map');
     const [places, setPlaces] = useState<Place[]>([]);
     const [mapRegion, setMapRegion] = useState<Region>(DEFAULT_REGION);
     const [mapKey, setMapKey] = useState(0);
@@ -290,7 +359,7 @@ export default function App() {
                             <Text style={styles.hintText}>Долгое нажатие на карту, чтобы добавить место</Text>
                         </View>
                     </View>
-                ) : (
+                ) : currentView === 'list' ? (
                     <View style={{flex: 1, backgroundColor: COLORS.bgMain}}>
                         <FlagHeader />
                         <Animated.FlatList 
@@ -305,12 +374,14 @@ export default function App() {
                             showsVerticalScrollIndicator={false}
                         />
                     </View>
+                ) : (
+                    <AboutCity />
                 )}
             </View>
 
-            {/* НОВЫЙ ТАБ-БАР (ПЛАВАЮЩИЙ, ТЕМНЫЙ) */}
+            {/* НОВЫЙ ТАБ-БАР (ПЛАВАЮЩИЙ, ТЕМНЫЙ, С ТРЕТЬЕЙ КНОПКОЙ) */}
             <View style={styles.floatingTabBarContainer}>
-                <View style={styles.floatingTabBar}>
+                <View style={[styles.floatingTabBar, { width: SCREEN_WIDTH * 0.7 }]}>
                     <TouchableOpacity 
                         style={styles.tab} 
                         onPress={() => setCurrentView('map')}
@@ -327,6 +398,16 @@ export default function App() {
                     >
                         {currentView === 'list' && <View style={[styles.activeIndicator, {backgroundColor: COLORS.karelianRed}]} />}
                         <Ionicons name={currentView === 'list' ? "list" : "list-outline"} size={26} color={currentView === 'list' ? COLORS.textWhite : COLORS.textGrey} />
+                    </TouchableOpacity>
+                    
+                    <View style={styles.tabDivider} />
+
+                    <TouchableOpacity 
+                        style={styles.tab} 
+                        onPress={() => setCurrentView('about')}
+                    >
+                        {currentView === 'about' && <View style={[styles.activeIndicator, {backgroundColor: COLORS.karelianGreen}]} />}
+                        <Ionicons name={currentView === 'about' ? "information-circle" : "information-circle-outline"} size={26} color={currentView === 'about' ? COLORS.textWhite : COLORS.textGrey} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -567,4 +648,17 @@ const styles = StyleSheet.create({
     formActionsDark: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
     cancelBtnDark: { padding: 16, borderRadius: 14, flex: 1, alignItems: 'center', backgroundColor: COLORS.bgInput, marginRight: 10 },
     cancelBtnTextDark: { color: COLORS.textWhite, fontWeight: '600' },
+
+    // --- НОВЫЕ СТИЛИ ДЛЯ "О ГОРОДЕ" ---
+    aboutContainer: { padding: 20, paddingBottom: 100 },
+    aboutHeaderImageContainer: { height: 260, position: 'relative', marginBottom: 20 },
+    aboutHeaderImage: { width: '100%', height: '100%', backgroundColor: COLORS.bgInput, borderRadius: 24 }, // Замените на Image, если есть фото
+    aboutTitleOverlay: { position: 'absolute', bottom: 20, left: 20, right: 20 },
+    aboutTitle: { fontSize: 32, fontWeight: '900', color: COLORS.textWhite, textShadowColor: 'rgba(0,0,0,0.8)', textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 4 },
+    aboutSubtitle: { fontSize: 16, fontWeight: '600', color: 'rgba(255,255,255,0.8)', marginTop: 5 },
+    flagLine: { flexDirection: 'row', height: 4, width: '100%', marginBottom: 30, borderRadius: 2, overflow: 'hidden' },
+    aboutSectionTitle: { fontSize: 20, fontWeight: '800', color: COLORS.karelianBlue, marginBottom: 10, letterSpacing: 0.5 },
+    aboutText: { fontSize: 16, color: COLORS.textGrey, lineHeight: 24, marginBottom: 25 },
+    aboutFooter: { padding: 20, borderRadius: 16, alignItems: 'center', marginTop: 20 },
+    aboutFooterText: { fontSize: 16, fontWeight: '700', color: COLORS.textWhite, letterSpacing: 0.5 },
 });
